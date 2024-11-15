@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biological Age Assessment Tool</title>
+  <style>
+    .section {
+      cursor: pointer;
+      padding: 10px;
+      font-weight: bold;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      margin-top: 5px;
+    }
+    .section-content {
+      display: none;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Biological Age Assessment Tool</h1>
+
+<form id="ageForm">
+
+  <!-- Section 1: Personal Information -->
+  <div class="section" onclick="toggleSection(this)">1. Personal Information</div>
+  <div class="section-content">
+    <label>Date of Birth: <input type="date" id="birthdate" required></label><br>
+  </div>
+
+  <!-- Section 2: Physical Attributes -->
+  <div class="section" onclick="toggleSection(this)">2. Physical Attributes</div>
+  <div class="section-content">
+    <label>Height (cm): <input type="number" id="height" required></label><br>
+    <label>Weight (kg): <input type="number" id="weight" required></label><br>
+    <label>Arm Circumference (inches): <input type="number" id="arm_circumference"></label><br>
+  </div>
+
+  <!-- Section 3: Medical History -->
+  <div class="section" onclick="toggleSection(this)">3. Medical History</div>
+  <div class="section-content">
+    <label>Chronic Health Conditions: <input type="text" id="chronic_conditions"></label><br>
+    <label>Family History of Major Illnesses: <input type="text" id="family_history"></label><br>
+  </div>
+
+  <!-- Section 4: Lifestyle Factors -->
+  <div class="section" onclick="toggleSection(this)">4. Lifestyle Factors</div>
+  <div class="section-content">
+    <label>Smoking Status:
+      <select id="smoking">
+        <option value="Never">Never</option>
+        <option value="Past">Past Smoker</option>
+        <option value="Current">Current Smoker</option>
+      </select>
+    </label><br>
+    <label>Alcohol Consumption:
+      <select id="alcohol">
+        <option value="Never">Never</option>
+        <option value="Occasionally">Occasionally</option>
+        <option value="Frequently">Frequently</option>
+      </select>
+    </label><br>
+    <label>Exercise Frequency:
+      <select id="exercise">
+        <option value="None">None</option>
+        <option value="Occasional">1-2 times per week</option>
+        <option value="Regular">3-5 times per week</option>
+        <option value="Daily">Daily</option>
+      </select>
+    </label><br>
+  </div>
+
+  <!-- Section 5: Diet & Nutrition -->
+  <div class="section" onclick="toggleSection(this)">5. Diet & Nutrition</div>
+  <div class="section-content">
+    <label>Type of Diet:
+      <select id="diet">
+        <option value="Balanced">Balanced</option>
+        <option value="High-fat">High-fat</option>
+        <option value="High-carb">High-carb</option>
+        <option value="Vegetarian">Vegetarian</option>
+        <option value="Vegan">Vegan</option>
+      </select>
+    </label><br>
+    <label>Servings of Fruits & Vegetables per Day:
+      <select id="fruits_veggies">
+        <option value="Less than 1">Less than 1</option>
+        <option value="1-2">1-2</option>
+        <option value="3-5">3-5</option>
+        <option value="More than 5">More than 5</option>
+      </select>
+    </label><br>
+  </div>
+
+  <!-- Section 6: Health Metrics -->
+  <div class="section" onclick="toggleSection(this)">6. Health Metrics</div>
+  <div class="section-content">
+    <label>Systolic Blood Pressure (mmHg): <input type="number" id="systolic_bp"></label><br>
+    <label>Diastolic Blood Pressure (mmHg): <input type="number" id="diastolic_bp"></label><br>
+  </div>
+
+</form>
+
+<p><strong>Estimated Biological Age:</strong> <span id="result">0</span> years</p>
+
+<script>
+  // Toggle collapsible sections
+  function toggleSection(section) {
+    const content = section.nextElementSibling;
+    content.style.display = content.style.display === "block" ? "none" : "block";
+  }
+
+  // Function to calculate biological age
+  function calculateBiologicalAge() {
+    const birthdate = new Date(document.getElementById('birthdate').value);
+    const today = new Date();
+    let chronologicalAge = today.getFullYear() - birthdate.getFullYear();
+    const m = today.getMonth() - birthdate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+      chronologicalAge--;
+    }
+
+    let biologicalAge = chronologicalAge;
+
+    // Physical Attributes
+    const weight = parseFloat(document.getElementById('weight').value);
+    if (weight < 50 || weight > 90) biologicalAge += 3;
+    const armCircumference = parseFloat(document.getElementById('arm_circumference').value);
+    if (armCircumference && (armCircumference < 10 || armCircumference > 16)) biologicalAge += 2;
+
+    // Medical History
+    const chronicConditions = document.getElementById('chronic_conditions').value;
+    if (chronicConditions) biologicalAge += 4;
+    const familyHistory = document.getElementById('family_history').value;
+    if (familyHistory) biologicalAge += 2;
+
+    // Lifestyle Factors
+    const smoking = document.getElementById('smoking').value;
+    if (smoking === "Current") biologicalAge += 5;
+    else if (smoking === "Past") biologicalAge += 2;
+    
+    const alcohol = document.getElementById('alcohol').value;
+    if (alcohol === "Frequently") biologicalAge += 3;
+    else if (alcohol === "Occasionally") biologicalAge += 1;
+    
+    const exercise = document.getElementById('exercise').value;
+    if (exercise === "Daily") biologicalAge -= 3;
+    else if (exercise === "Regular") biologicalAge -= 2;
+    else if (exercise === "Occasional") biologicalAge -= 1;
+    
+    // Diet & Nutrition
+    const diet = document.getElementById('diet').value;
+    if (diet === "High-fat" || diet === "High-carb") biologicalAge += 3;
+    
+    const fruitsVeggies = document.getElementById('fruits_veggies').value;
+    if (fruitsVeggies === "Less than 1") biologicalAge += 3;
+    else if (fruitsVeggies === "1-2") biologicalAge += 2;
+    else if (fruitsVeggies === "3-5") biologicalAge += 1;
+    else if (fruitsVeggies === "More than 5") biologicalAge -= 2;
+
+    // Health Metrics
+    const systolic = parseInt(document.getElementById('systolic_bp').value) || 120;
+    if (systolic < 110 || systolic > 130) biologicalAge += 3;
+
+    const diastolic = parseInt(document.getElementById('diastolic_bp').value) || 80;
+    if (diastolic < 70 || diastolic > 90) biologicalAge += 3;
+
+    document.getElementById("result").innerText = biologicalAge;
+  }
+
+  // Add event listeners to all form elements
+  document.querySelectorAll("#ageForm input, #ageForm select").forEach(input => {
+    input.addEventListener("input", calculateBiologicalAge);
+  });
+</script>
+
+</body>
+</html>
